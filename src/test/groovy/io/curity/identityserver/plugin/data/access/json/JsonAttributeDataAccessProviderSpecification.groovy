@@ -19,6 +19,7 @@ import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.http.HttpHeaders
 import se.curity.identityserver.sdk.http.HttpResponse
 import se.curity.identityserver.sdk.service.Json
+import spock.lang.Issue
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -63,6 +64,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
     }
 
     @Unroll
+    @Issue("IS-2237")
     'The correct query parameters are provided when provideSubject is configured to use query parameters'() {
         given: 'Configuration for the JSON Attribute provider without username-parameter'
         def attributesConfigurationMock = Stub(AttributesConfiguration) {
