@@ -21,8 +21,6 @@ import se.curity.identityserver.sdk.config.annotation.DefaultEnum;
 import se.curity.identityserver.sdk.config.annotation.DefaultString;
 import se.curity.identityserver.sdk.config.annotation.Description;
 
-import java.util.Optional;
-
 public interface CredentialAccessConfiguration
 {
 

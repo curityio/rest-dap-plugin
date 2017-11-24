@@ -17,14 +17,14 @@
 package io.curity.identityserver.plugin.data.access.json;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.curity.identityserver.plugin.data.access.json.parameter.AttributeLookupMapping;
-import io.curity.identityserver.plugin.data.access.json.parameter.StaticMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration;
 import io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration.ProvideSubject.Parameter;
 import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration;
+import io.curity.identityserver.plugin.data.access.json.parameter.AttributeLookupMapping;
 import io.curity.identityserver.plugin.data.access.json.parameter.ParameterMapping;
+import io.curity.identityserver.plugin.data.access.json.parameter.StaticMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.attribute.AttributeName;
 import se.curity.identityserver.sdk.attribute.AttributeTableView;
@@ -216,7 +216,8 @@ public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvi
             case HEADER_PARAMETER:
                 return (String value) -> Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
             case QUERY_PARAMETER:
-                return WebUtils::urlEncode;
+                // Possible URL-encoding is not the JSON DAP's, but the WebServiceClient's responsibility
+                return Function.identity();
             default:
                 throw new IllegalArgumentException("Unknown ProvideAs instance: " + provideAs);
         }

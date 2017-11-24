@@ -89,7 +89,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         and: 'the header parameters are created for the request'
         def actualHeaderParameters = jsonAttributeDAP.createHeaderParameters(subjectAttributes)
 
-        then: 'the query parameters contain the expected entries'
+        then: 'the query parameters contain the expected, un-encoded entries'
         actualQueryParameters == queryMap
 
         and: 'the header parameters are empty'
@@ -101,11 +101,11 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         [[name: 'subject', staticValue: 'bruno']]             | [a: 'hello', subject: 'doe']    | [sub: 'doe', 'subject': 'bruno']
         [[name: 'subject', useValueOfAttribute: 'not_there']] | [a: 'hello', subject: 'doe']    | [sub: 'doe']
         [[name: 'name', staticValue: 'bruno']]                | [a: 'hello', subject: 'doe']    | [sub: 'doe', 'name': 'bruno']
-        [[name: 'username', useValueOfAttribute: 'a']]        | [a: 'björn öl', subject: 'doe'] | [sub: 'doe', 'username': 'bj%C3%B6rn+%C3%B6l']
-        [[name: 'subject', staticValue: 'brüno']]             | [a: 'hello', subject: 'doe']    | [sub: 'doe', 'subject': 'br%C3%BCno']
+        [[name: 'username', useValueOfAttribute: 'a']]        | [a: 'björn öl', subject: 'doe'] | [sub: 'doe', 'username': 'björn öl']
+        [[name: 'subject', staticValue: 'brüno']]             | [a: 'hello', subject: 'doe']    | [sub: 'doe', 'subject': 'brüno']
         [[name: 'subject', staticValue: 'brüno'],
          [name: 'username', useValueOfAttribute: 'a']]        | [a: 'hello', subject: 'doe']    | [sub     : 'doe',
-                                                                                                   subject : 'br%C3%BCno',
+                                                                                                   subject : 'brüno',
                                                                                                    username: 'hello']
 
     }
