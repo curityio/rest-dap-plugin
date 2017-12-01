@@ -28,7 +28,7 @@ public interface CredentialAccessConfiguration
             + "responds with HTTP Success to indicate a successful password verification."
             + "If set to false the password will not be sent to the server and the response should "
             + "contain both the username, password and the status of the account.")
-    @DefaultBoolean(false)
+    @DefaultBoolean(true)
     boolean backendVerifiesPassword();
 
     @Description("Specify how username and password are provided to the server. This sets both "
