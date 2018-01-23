@@ -35,6 +35,7 @@ import se.curity.identityserver.sdk.http.HttpResponse;
 import se.curity.identityserver.sdk.service.Json;
 import se.curity.identityserver.sdk.service.WebServiceClient;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
@@ -82,7 +83,7 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
                 .request()
                 .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
                 .contentType(JsonClientRequestContentType.APPLICATION_JSON.toString())
-                .body(HttpRequest.fromString(_json.toJson(requestParameterMap)))
+                .body(HttpRequest.fromString(_json.toJson(requestParameterMap), StandardCharsets.UTF_8))
                 .method("PUT")
                 .response();
 
@@ -184,13 +185,13 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
                 return webServiceClient.request()
                         .contentType(JsonClientRequestContentType.APPLICATION_JSON.toString())
                         .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
-                        .body(HttpRequest.fromString(_json.toJson(requestParameterMap)))
+                        .body(HttpRequest.fromString(_json.toJson(requestParameterMap), StandardCharsets.UTF_8))
                         .method("POST");
             case POST_AS_URLENCODED_FORMDATA:
                 return webServiceClient.request()
                         .contentType(JsonClientRequestContentType.APPLICATION_WWW_FORM_URLENCODED.toString())
                         .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
-                        .body(HttpRequest.fromString(urlEncodedFormData(requestParameterMap)))
+                        .body(HttpRequest.fromString(urlEncodedFormData(requestParameterMap), StandardCharsets.ISO_8859_1))
                         .method("POST");
             case GET_AS_QUERYSTRING:
                 return webServiceClient.withQueries(toMultiMap(requestParameterMap)).request()
