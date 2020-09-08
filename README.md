@@ -1,7 +1,7 @@
 # JSON Data Access Plugin Example #
 
-[![Quality](https://curity.io/assets/images/badges/rest-dap-plugin-quality.svg)](https://curity.io/resources/code-examples/status/)
-[![Availability](https://curity.io/assets/images/badges/rest-dap-plugin-availability.svg)](https://curity.io/resources/code-examples/status/)
+[![Quality](https://img.shields.io/badge/quality-production-green)](https://curity.io/resources/code-examples/status/)
+[![Availability](https://img.shields.io/badge/availability-bundled-green)](https://curity.io/resources/code-examples/status/)
 
 This is a sample JSON Data Access Plugin for the Curity Identity Server.
 
