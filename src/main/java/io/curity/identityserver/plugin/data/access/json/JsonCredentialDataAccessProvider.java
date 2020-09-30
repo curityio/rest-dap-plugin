@@ -23,6 +23,7 @@ import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessPro
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.curity.identityserver.sdk.Nullable;
+import se.curity.identityserver.sdk.ThreadSafe;
 import se.curity.identityserver.sdk.attribute.AccountAttributes;
 import se.curity.identityserver.sdk.attribute.AttributeName;
 import se.curity.identityserver.sdk.attribute.Attributes;
@@ -44,7 +45,7 @@ import static io.curity.identityserver.plugin.data.access.json.WebUtils.isSucces
 import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncode;
 import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncodedFormData;
 
-public class JsonCredentialDataAccessProvider implements CredentialDataAccessProvider
+public class JsonCredentialDataAccessProvider implements CredentialDataAccessProvider, ThreadSafe
 {
     private static final String SUBJECT_PLACEHOLDER = ":subject";
     private static final String PASSWORD_PLACEHOLDER = ":password";

@@ -26,6 +26,7 @@ import io.curity.identityserver.plugin.data.access.json.parameter.StaticMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.curity.identityserver.sdk.Nullable;
+import se.curity.identityserver.sdk.ThreadSafe;
 import se.curity.identityserver.sdk.attribute.AttributeName;
 import se.curity.identityserver.sdk.attribute.AttributeTableView;
 import se.curity.identityserver.sdk.attribute.Attributes;
@@ -49,11 +50,11 @@ import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.t
 import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.toMultiMap;
 import static se.curity.identityserver.sdk.http.HttpResponse.asString;
 
-public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvider
+public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvider, ThreadSafe
 {
     private static final String SUBJECT_PLACEHOLDER = ":subject";
 
-    private final static Logger _logger = LoggerFactory.getLogger(JsonAttributeDataAccessProvider.class);
+    private static final Logger _logger = LoggerFactory.getLogger(JsonAttributeDataAccessProvider.class);
 
     private final AttributesConfiguration _configuration;
     private final WebServiceClient _webServiceClient;
