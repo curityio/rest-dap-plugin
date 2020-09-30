@@ -45,6 +45,7 @@ import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.t
 import static io.curity.identityserver.plugin.data.access.json.WebUtils.isSuccessfulJsonResponse;
 import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncode;
 import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncodedFormData;
+import static se.curity.identityserver.sdk.alarm.AlarmType.EXTERNAL_SERVICE_FAILED_AUTHENTICATION;
 
 public class JsonCredentialDataAccessProvider implements CredentialDataAccessProvider, ThreadSafe
 {
@@ -217,18 +218,21 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
         {
             case POST_AS_JSON:
                 return webServiceClient.request()
+                        .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
                         .contentType(JsonClientRequestContentType.APPLICATION_JSON.toString())
                         .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
                         .body(HttpRequest.fromString(_json.toJson(requestParameterMap), StandardCharsets.UTF_8))
                         .method("POST");
             case POST_AS_URLENCODED_FORMDATA:
                 return webServiceClient.request()
+                        .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
                         .contentType(JsonClientRequestContentType.APPLICATION_WWW_FORM_URLENCODED.toString())
                         .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
                         .body(HttpRequest.fromString(urlEncodedFormData(requestParameterMap), StandardCharsets.ISO_8859_1))
                         .method("POST");
             case GET_AS_QUERYSTRING:
                 return webServiceClient.withQueries(toMultiMap(requestParameterMap)).request()
+                        .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
                         .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
                         .method("GET");
             default:
