@@ -21,12 +21,12 @@ import io.curity.identityserver.plugin.data.access.json.JsonCredentialDataAccess
 import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration;
 import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.config.Configuration;
-import se.curity.identityserver.sdk.plugin.descriptor.DataAccessProviderPluginDescriptor;
 import se.curity.identityserver.sdk.datasource.AttributeDataAccessProvider;
 import se.curity.identityserver.sdk.datasource.CredentialDataAccessProvider;
+import se.curity.identityserver.sdk.plugin.descriptor.DataAccessProviderPluginDescriptor;
 
 @SuppressWarnings("unused")
-public class JsonDataAccessPluginDescriptor implements DataAccessProviderPluginDescriptor
+public class JsonDataAccessPluginDescriptor implements DataAccessProviderPluginDescriptor<Configuration>
 {
     @Override
     public String getPluginImplementationType()
