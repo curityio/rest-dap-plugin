@@ -92,7 +92,7 @@ final class WebUtils
         {
             Optional<String> jsonContentType = contentTypes.stream().filter(WebUtils::isJson).findFirst();
 
-            if (!jsonContentType.isPresent())
+            if (!jsonContentType.isPresent() && _logger.isDebugEnabled())
             {
                 _logger.debug("JSON DataSource provided an unexpected Content-Type: '{}', " +
                         "will attempt to parse the response as JSON", String.join(", ", contentTypes));
