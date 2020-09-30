@@ -31,6 +31,7 @@ import se.curity.identityserver.sdk.attribute.AuthenticationAttributes;
 import se.curity.identityserver.sdk.attribute.ContextAttributes;
 import se.curity.identityserver.sdk.attribute.SubjectAttributes;
 import se.curity.identityserver.sdk.datasource.CredentialDataAccessProvider;
+import se.curity.identityserver.sdk.errors.CredentialManagerException;
 import se.curity.identityserver.sdk.http.HttpRequest;
 import se.curity.identityserver.sdk.http.HttpResponse;
 import se.curity.identityserver.sdk.service.Json;
@@ -135,12 +136,19 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
 
         _logger.debug("JSON data-source responds with status: {}", jsonResponse.statusCode());
 
-        return getAuthenticationAttributesFrom(jsonResponse, userName);
+        return getAuthenticationAttributesFrom(jsonResponse, userName, true);
     }
 
     @VisibleForTesting
     @Nullable
     AuthenticationAttributes getAuthenticationAttributesFrom(HttpResponse jsonResponse, String userName)
+    {
+        return getAuthenticationAttributesFrom(jsonResponse, userName, false);
+    }
+
+    @Nullable
+    private AuthenticationAttributes getAuthenticationAttributesFrom(HttpResponse jsonResponse, String userName,
+                                                                     boolean throwOnError)
     {
         @Nullable AuthenticationAttributes attributes = null;
 
@@ -151,13 +159,18 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
         if (!isHttpSuccessResponse)
         {
             // Debug level logging, as the response is not reporting OK/success
-            if (!responseBody.isEmpty())
+            if (responseBody.isEmpty())
             {
-                _logger.debug("Response from JSON data-source:\n{}", responseBody);
+                _logger.debug("No response body from JSON data-source.");
             }
             else
             {
-                _logger.debug("No response body from JSON data-source.");
+                _logger.debug("Response from JSON data-source:\n{}", responseBody);
+
+                if (throwOnError)
+                {
+                    throw newCredentialManagerException(_json, responseBody);
+                }
             }
         }
         else if (responseBody.isEmpty())
@@ -175,6 +188,26 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
         }
 
         return attributes;
+    }
+
+    private static CredentialManagerException newCredentialManagerException(Json json, String responseBody)
+    {
+        String message;
+
+        try
+        {
+            message = json.fromJson(responseBody).getOrDefault("error",
+                    "No error details available").toString();
+        }
+        catch (Json.JsonException e)
+        {
+            _logger.warn("Could not parse JSON response from server due to '{}': {}",
+                    e.getMessage(), responseBody);
+
+            message = responseBody;
+        }
+
+        return new CredentialManagerException(message);
     }
 
     private HttpRequest getHttpRequestToVerifyPassword(Map<String, String> requestParameterMap,
