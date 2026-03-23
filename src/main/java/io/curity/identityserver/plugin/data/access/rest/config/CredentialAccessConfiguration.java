@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json.config;
+package io.curity.identityserver.plugin.data.access.rest.config;
 
 import se.curity.identityserver.sdk.config.annotation.DefaultBoolean;
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum;
@@ -23,13 +23,6 @@ import se.curity.identityserver.sdk.config.annotation.Description;
 
 public interface CredentialAccessConfiguration
 {
-
-    @Description("If set to true, the backend will verify the password. It is required the server "
-            + "responds with HTTP Success to indicate a successful password verification."
-            + "If set to false the password will not be sent to the server and the response should "
-            + "contain both the username, password and the status of the account.")
-    @DefaultBoolean(true)
-    boolean backendVerifiesPassword();
 
     @Description("Specify how username and password are provided to the server. This sets both "
             + "the HTTP method that is used, as well as the content-type that the data is encoded with")

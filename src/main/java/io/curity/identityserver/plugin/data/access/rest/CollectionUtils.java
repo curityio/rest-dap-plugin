@@ -9,7 +9,7 @@
  * For further information, please contact Curity AB.
  */
 
-package io.curity.identityserver.plugin.data.access.json;
+package io.curity.identityserver.plugin.data.access.rest;
 
 import java.util.Collection;
 import java.util.Map;

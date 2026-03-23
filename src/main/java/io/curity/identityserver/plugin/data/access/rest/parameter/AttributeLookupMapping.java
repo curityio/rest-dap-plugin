@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json.parameter;
+package io.curity.identityserver.plugin.data.access.rest.parameter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

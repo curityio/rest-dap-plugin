@@ -9,12 +9,12 @@
  * For further information, please contact Curity AB.
  */
 
-package io.curity.identityserver.plugin.data.access.json
+package io.curity.identityserver.plugin.data.access.rest
 
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
-import io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration
-import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration
+import io.curity.identityserver.plugin.data.access.rest.config.AttributesConfiguration
+import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration
 import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.http.HttpHeaders
 import se.curity.identityserver.sdk.http.HttpResponse
@@ -25,8 +25,8 @@ import spock.lang.Unroll
 
 import java.time.Instant
 
-import static io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration.ProvideSubject.Parameter.ProvideAs.HEADER_PARAMETER
-import static io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration.ProvideSubject.Parameter.ProvideAs.QUERY_PARAMETER
+import static io.curity.identityserver.plugin.data.access.rest.config.AttributesConfiguration.ProvideSubject.Parameter.ProvideAs.HEADER_PARAMETER
+import static io.curity.identityserver.plugin.data.access.rest.config.AttributesConfiguration.ProvideSubject.Parameter.ProvideAs.QUERY_PARAMETER
 
 class JsonAttributeDataAccessProviderSpecification extends Specification {
 
@@ -43,7 +43,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         }
 
         and: 'A JSON DAP using mocked configuration'
-        def jsonAttributeDAP = new JsonAttributeDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonAttributeDAP = new RestAttributeDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getAttributesConfiguration() >> attributesConfigurationMock
         })
 
@@ -80,7 +80,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         }
 
         and: 'A JSON DAP using mocked configuration'
-        def jsonAttributeDAP = new JsonAttributeDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonAttributeDAP = new RestAttributeDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getAttributesConfiguration() >> attributesConfigurationMock
         })
 
@@ -157,7 +157,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         }
 
         and: 'A JSON DAP using mocked configuration'
-        def jsonAttributeDAP = new JsonAttributeDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonAttributeDAP = new RestAttributeDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getAttributesConfiguration() >> attributesConfigurationMock
         })
 
@@ -213,7 +213,7 @@ class JsonAttributeDataAccessProviderSpecification extends Specification {
         }
 
         and: 'A JSON DAP using mocked configuration'
-        def jsonAttributeDAP = new JsonAttributeDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonAttributeDAP = new RestAttributeDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             json() >> Stub(Json) {
                 fromJson(validJsonResponseBody) >> new JsonSlurper().parseText(validJsonResponseBody)
             }

@@ -9,7 +9,7 @@
  * For further information, please contact Curity AB.
  */
 
-package io.curity.identityserver.plugin.data.access.json.parameter
+package io.curity.identityserver.plugin.data.access.rest.parameter
 
 import se.curity.identityserver.sdk.attribute.Attribute
 import se.curity.identityserver.sdk.attribute.AttributeName

@@ -16,42 +16,40 @@
 
 package io.curity.identityserver.plugin.descriptor;
 
-import io.curity.identityserver.plugin.data.access.json.JsonAttributeDataAccessProvider;
-import io.curity.identityserver.plugin.data.access.json.JsonCredentialDataAccessProvider;
-import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration;
+import io.curity.identityserver.plugin.data.access.rest.RestAttributeDataAccessProvider;
+import io.curity.identityserver.plugin.data.access.rest.RestCredentialDataAccessProviderFactory;
+import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration;
 import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.config.Configuration;
 import se.curity.identityserver.sdk.datasource.AttributeDataAccessProvider;
-import se.curity.identityserver.sdk.datasource.CredentialDataAccessProvider;
+import se.curity.identityserver.sdk.datasource.CredentialDataAccessProviderFactory;
 import se.curity.identityserver.sdk.plugin.descriptor.DataAccessProviderPluginDescriptor;
 
 @SuppressWarnings("unused")
-public class JsonDataAccessPluginDescriptor implements DataAccessProviderPluginDescriptor<Configuration>
+public class RestDataAccessPluginDescriptor implements DataAccessProviderPluginDescriptor<Configuration>
 {
     @Override
     public String getPluginImplementationType()
     {
-        return "json";
+        return "rest";
     }
 
     @Override
     public Class<? extends Configuration> getConfigurationType()
     {
-        return JsonDataAccessProviderConfiguration.class;
+        return RestDataAccessProviderConfiguration.class;
     }
 
-    @Nullable
     @Override
-    public Class<? extends CredentialDataAccessProvider> getCredentialDataAccessProvider()
-    {
-        return JsonCredentialDataAccessProvider.class;
+    public @Nullable Class<? extends CredentialDataAccessProviderFactory> getCredentialDataAccessProviderFactory() {
+        return RestCredentialDataAccessProviderFactory.class;
     }
 
     @Nullable
     @Override
     public Class<? extends AttributeDataAccessProvider> getAttributeDataAccessProvider()
     {
-        return JsonAttributeDataAccessProvider.class;
+        return RestAttributeDataAccessProvider.class;
     }
 
 }

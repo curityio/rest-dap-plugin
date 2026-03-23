@@ -14,15 +14,15 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json;
+package io.curity.identityserver.plugin.data.access.rest;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration;
-import io.curity.identityserver.plugin.data.access.json.config.AttributesConfiguration.ProvideSubject.Parameter;
-import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration;
-import io.curity.identityserver.plugin.data.access.json.parameter.AttributeLookupMapping;
-import io.curity.identityserver.plugin.data.access.json.parameter.ParameterMapping;
-import io.curity.identityserver.plugin.data.access.json.parameter.StaticMapping;
+import io.curity.identityserver.plugin.data.access.rest.config.AttributesConfiguration;
+import io.curity.identityserver.plugin.data.access.rest.config.AttributesConfiguration.ProvideSubject.Parameter;
+import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration;
+import io.curity.identityserver.plugin.data.access.rest.parameter.AttributeLookupMapping;
+import io.curity.identityserver.plugin.data.access.rest.parameter.ParameterMapping;
+import io.curity.identityserver.plugin.data.access.rest.parameter.StaticMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.curity.identityserver.sdk.Nullable;
@@ -46,22 +46,22 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.toArray;
-import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.toMultiMap;
+import static io.curity.identityserver.plugin.data.access.rest.CollectionUtils.toArray;
+import static io.curity.identityserver.plugin.data.access.rest.CollectionUtils.toMultiMap;
 import static se.curity.identityserver.sdk.http.HttpResponse.asString;
 
-public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvider, ThreadSafe
+public class RestAttributeDataAccessProvider implements AttributeDataAccessProvider, ThreadSafe
 {
     private static final String SUBJECT_PLACEHOLDER = ":subject";
 
-    private static final Logger _logger = LoggerFactory.getLogger(JsonAttributeDataAccessProvider.class);
+    private static final Logger _logger = LoggerFactory.getLogger(RestAttributeDataAccessProvider.class);
 
     private final AttributesConfiguration _configuration;
     private final WebServiceClient _webServiceClient;
     private final Json _json;
 
     @SuppressWarnings("unused") // used through DI
-    public JsonAttributeDataAccessProvider(JsonDataAccessProviderConfiguration configuration)
+    public RestAttributeDataAccessProvider(RestDataAccessProviderConfiguration configuration)
     {
         _configuration = configuration.getAttributesConfiguration();
         _json = configuration.json();
@@ -91,7 +91,7 @@ public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvi
                 .withPath(requestPath)
                 .request()
                 .header(toArray(headerParameters))
-                .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
+                .accept(RestClientRequestContentType.APPLICATION_JSON.toString())
                 .method("GET")
                 .response();
 
@@ -194,7 +194,7 @@ public class JsonAttributeDataAccessProvider implements AttributeDataAccessProvi
         result.put(parameterConfig.usernameParameter(), encodedSubject);
 
         List<ParameterMapping> mappings = _configuration.parameterMappings().parameterMapping().stream()
-                .map(JsonAttributeDataAccessProvider::parameterMapping)
+                .map(RestAttributeDataAccessProvider::parameterMapping)
                 .collect(Collectors.toList());
 
         for (ParameterMapping mapping : mappings)
