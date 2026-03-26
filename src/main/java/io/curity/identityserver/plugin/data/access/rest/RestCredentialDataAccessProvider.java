@@ -14,24 +14,23 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json;
+package io.curity.identityserver.plugin.data.access.rest;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import io.curity.identityserver.plugin.data.access.json.config.CredentialAccessConfiguration;
-import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration;
+import io.curity.identityserver.plugin.data.access.rest.config.CredentialAccessConfiguration;
+import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.ThreadSafe;
-import se.curity.identityserver.sdk.attribute.AccountAttributes;
 import se.curity.identityserver.sdk.attribute.AttributeName;
 import se.curity.identityserver.sdk.attribute.Attributes;
 import se.curity.identityserver.sdk.attribute.AuthenticationAttributes;
 import se.curity.identityserver.sdk.attribute.ContextAttributes;
 import se.curity.identityserver.sdk.attribute.SubjectAttributes;
-import se.curity.identityserver.sdk.datasource.CredentialDataAccessProvider;
-import se.curity.identityserver.sdk.errors.CredentialManagerException;
+import se.curity.identityserver.sdk.datasource.CredentialDataAccessProviderFactory;
+import se.curity.identityserver.sdk.datasource.CredentialVerifyingDataAccessProvider;
 import se.curity.identityserver.sdk.http.HttpRequest;
 import se.curity.identityserver.sdk.http.HttpResponse;
 import se.curity.identityserver.sdk.service.Json;
@@ -39,26 +38,25 @@ import se.curity.identityserver.sdk.service.WebServiceClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Optional;
 
-import static io.curity.identityserver.plugin.data.access.json.CollectionUtils.toMultiMap;
-import static io.curity.identityserver.plugin.data.access.json.WebUtils.isSuccessfulJsonResponse;
-import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncode;
-import static io.curity.identityserver.plugin.data.access.json.WebUtils.urlEncodedFormData;
+import static io.curity.identityserver.plugin.data.access.rest.CollectionUtils.toMultiMap;
+import static io.curity.identityserver.plugin.data.access.rest.WebUtils.isSuccessfulJsonResponse;
+import static io.curity.identityserver.plugin.data.access.rest.WebUtils.urlEncode;
+import static io.curity.identityserver.plugin.data.access.rest.WebUtils.urlEncodedFormData;
 import static se.curity.identityserver.sdk.alarm.AlarmType.EXTERNAL_SERVICE_FAILED_AUTHENTICATION;
 
-public class JsonCredentialDataAccessProvider implements CredentialDataAccessProvider, ThreadSafe
+public class RestCredentialDataAccessProvider implements CredentialVerifyingDataAccessProvider, CredentialDataAccessProviderFactory, ThreadSafe
 {
     private static final String SUBJECT_PLACEHOLDER = ":subject";
     private static final String PASSWORD_PLACEHOLDER = ":password";
-    private static final Logger _logger = LoggerFactory.getLogger(JsonCredentialDataAccessProvider.class);
+    private static final Logger _logger = LoggerFactory.getLogger(RestCredentialDataAccessProvider.class);
 
     private final CredentialAccessConfiguration _configuration;
     private final Json _json;
     private final WebServiceClient _webServiceClient;
 
     @SuppressWarnings("unused") // used through DI
-    public JsonCredentialDataAccessProvider(JsonDataAccessProviderConfiguration configuration)
+    public RestCredentialDataAccessProvider(RestDataAccessProviderConfiguration configuration)
     {
         _configuration = configuration.getCredentialAccessConfiguration();
         _json = configuration.json();
@@ -66,26 +64,25 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
     }
 
     @Override
-    public void updatePassword(AccountAttributes account)
+    public SetResult set(SubjectAttributes subject, String password)
     {
-        String subjectId = account.getUserName();
-        Optional<String> newPassword = Optional.ofNullable(account.getPassword());
+        String subjectId = subject.getSubject();
 
-        if (!newPassword.isPresent())
+        if (password.isEmpty())
         {
             _logger.warn("Cannot update account password, missing password value");
-            return;
+            return new SetResult.Rejected("Missing password value");
         }
 
-        String requestPath = createRequestPath(subjectId, newPassword.get());
-        Map<String, String> requestParameterMap = createRequestParameterMap(subjectId, newPassword.get());
+        String requestPath = createRequestPath(subjectId, password);
+        Map<String, String> requestParameterMap = createRequestParameterMap(subjectId, password);
 
         // updatePassword must use HTTP PUT.
         HttpResponse jsonResponse = _webServiceClient
                 .withPath(requestPath)
                 .request()
-                .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
-                .contentType(JsonClientRequestContentType.APPLICATION_JSON.toString())
+                .accept(RestClientRequestContentType.APPLICATION_JSON.toString())
+                .contentType(RestClientRequestContentType.APPLICATION_JSON.toString())
                 .body(HttpRequest.fromString(_json.toJson(requestParameterMap), StandardCharsets.UTF_8))
                 .method("PUT")
                 .response();
@@ -93,6 +90,7 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
         if (isSuccessfulJsonResponse(jsonResponse))
         {
             _logger.debug("The update password request for {} reported success.", subjectId);
+            return SetResult.Accepted.INSTANCE;
         }
         else
         {
@@ -110,24 +108,18 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
                 _logger.trace("No message returned in response body.");
             }
         }
+
+        return new SetResult.Rejected("Password update failed");
     }
 
     @Override
-    @Nullable
-    public AuthenticationAttributes verifyPassword(String userName, String password)
+    public VerifyResult verify(SubjectAttributes subject, String password)
     {
+        String userName = subject.getSubject();
         String requestPath = createRequestPath(userName, password);
         Map<String, String> requestParameterMap;
 
-        if (_configuration.backendVerifiesPassword())
-        {
-            requestParameterMap = createRequestParameterMap(userName, password);
-        }
-        else
-        {
-            // Don't send the password when the backend is not doing anything with it
-            requestParameterMap = createRequestParameterMap(userName, null);
-        }
+        requestParameterMap = createRequestParameterMap(userName, password);
 
         WebServiceClient webServiceClient = _webServiceClient.withPath(requestPath);
 
@@ -137,22 +129,26 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
 
         _logger.debug("JSON data-source responds with status: {}", jsonResponse.statusCode());
 
-        return getAuthenticationAttributesFrom(jsonResponse, userName, true);
+        return getVerifyResult(jsonResponse, userName);
     }
 
     @VisibleForTesting
-    @Nullable
     AuthenticationAttributes getAuthenticationAttributesFrom(HttpResponse jsonResponse, String userName)
     {
-        return getAuthenticationAttributesFrom(jsonResponse, userName, false);
+        VerifyResult result = getVerifyResult(jsonResponse, userName);
+
+        if (result instanceof VerifyResult.Accepted)
+        {
+            return ((VerifyResult.Accepted) result).getAuthenticationAttributes();
+        }
+        else
+        {
+            return AuthenticationAttributes.fromAttributes(Attributes.empty());
+        }
     }
 
-    @Nullable
-    private AuthenticationAttributes getAuthenticationAttributesFrom(HttpResponse jsonResponse, String userName,
-                                                                     boolean throwOnError)
+    private VerifyResult getVerifyResult(HttpResponse jsonResponse, String userName)
     {
-        @Nullable AuthenticationAttributes attributes = null;
-
         String responseBody = jsonResponse.body(HttpResponse.asString());
 
         boolean isHttpSuccessResponse = isSuccessfulJsonResponse(jsonResponse);
@@ -168,10 +164,7 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
             {
                 _logger.debug("Response from JSON data-source:\n{}", responseBody);
 
-                if (throwOnError)
-                {
-                    throw newCredentialManagerException(_json, responseBody);
-                }
+                return new VerifyResult.Rejected(readErrorFromJsonResponse(responseBody));
             }
         }
         else if (responseBody.isEmpty())
@@ -183,32 +176,12 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
             _logger.trace("Processing JSON response from successful response");
 
             // Let all the returned JSON-attributes be categorized as subject-attributes
-            attributes = AuthenticationAttributes.of(
+            return new VerifyResult.Accepted(AuthenticationAttributes.of(
                     SubjectAttributes.of(userName, readFromJsonResponse(responseBody)),
-                    ContextAttributes.empty());
+                    ContextAttributes.empty()));
         }
 
-        return attributes;
-    }
-
-    private static CredentialManagerException newCredentialManagerException(Json json, String responseBody)
-    {
-        String message;
-
-        try
-        {
-            message = json.fromJson(responseBody).getOrDefault("error",
-                    "No error details available").toString();
-        }
-        catch (Json.JsonException e)
-        {
-            _logger.warn("Could not parse JSON response from server due to '{}': {}",
-                    e.getMessage(), responseBody);
-
-            message = responseBody;
-        }
-
-        return new CredentialManagerException(message);
+        return VerifyResult.Rejected.withoutReason();
     }
 
     private HttpRequest getHttpRequestToVerifyPassword(Map<String, String> requestParameterMap,
@@ -219,21 +192,21 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
             case POST_AS_JSON:
                 return webServiceClient.request()
                         .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
-                        .contentType(JsonClientRequestContentType.APPLICATION_JSON.toString())
-                        .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
+                        .contentType(RestClientRequestContentType.APPLICATION_JSON.toString())
+                        .accept(RestClientRequestContentType.APPLICATION_JSON.toString())
                         .body(HttpRequest.fromString(_json.toJson(requestParameterMap), StandardCharsets.UTF_8))
                         .method("POST");
             case POST_AS_URLENCODED_FORMDATA:
                 return webServiceClient.request()
                         .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
-                        .contentType(JsonClientRequestContentType.APPLICATION_WWW_FORM_URLENCODED.toString())
-                        .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
+                        .contentType(RestClientRequestContentType.APPLICATION_WWW_FORM_URLENCODED.toString())
+                        .accept(RestClientRequestContentType.APPLICATION_JSON.toString())
                         .body(HttpRequest.fromString(urlEncodedFormData(requestParameterMap), StandardCharsets.ISO_8859_1))
                         .method("POST");
             case GET_AS_QUERYSTRING:
                 return webServiceClient.withQueries(toMultiMap(requestParameterMap)).request()
                         .withoutAlarm(EXTERNAL_SERVICE_FAILED_AUTHENTICATION)
-                        .accept(JsonClientRequestContentType.APPLICATION_JSON.toString())
+                        .accept(RestClientRequestContentType.APPLICATION_JSON.toString())
                         .method("GET");
             default:
                 throw new IllegalStateException("unknown value for submit-as: " + _configuration.submitAs());
@@ -245,10 +218,21 @@ public class JsonCredentialDataAccessProvider implements CredentialDataAccessPro
         return Attributes.fromMap(_json.fromJson(responseBody), AttributeName.Format.JSON);
     }
 
-    @Override
-    public boolean customQueryVerifiesPassword()
+    @Nullable
+    private String readErrorFromJsonResponse(String responseBody)
     {
-        return _configuration.backendVerifiesPassword();
+        try
+        {
+            return _json.fromJson(responseBody)
+                    .getOrDefault("error", "No error details available")
+                    .toString();
+        }
+        catch (Json.JsonException e)
+        {
+            _logger.warn("Could not parse JSON response from server due to '{}': {}", e.getMessage(), responseBody);
+
+            return null;
+        }
     }
 
     /**

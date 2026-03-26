@@ -9,12 +9,12 @@
  * For further information, please contact Curity AB.
  */
 
-package io.curity.identityserver.plugin.data.access.json
+package io.curity.identityserver.plugin.data.access.rest
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import io.curity.identityserver.plugin.data.access.json.config.CredentialAccessConfiguration
-import io.curity.identityserver.plugin.data.access.json.config.JsonDataAccessProviderConfiguration
+import io.curity.identityserver.plugin.data.access.rest.config.CredentialAccessConfiguration
+import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration
 import se.curity.identityserver.sdk.attribute.AccountAttributes
 import se.curity.identityserver.sdk.http.HttpHeaders
 import se.curity.identityserver.sdk.http.HttpRequest
@@ -36,7 +36,7 @@ class JsonCredentialDataAccessProviderSpecification extends Specification {
         }
 
         and: 'A JSON DAP using mocked configuration'
-        def jsonCredentialDAP = new JsonCredentialDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonCredentialDAP = new RestCredentialDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getCredentialAccessConfiguration() >> credentialAccessConfigurationMock
         })
 
@@ -93,7 +93,7 @@ class JsonCredentialDataAccessProviderSpecification extends Specification {
         }
 
         and: 'a JSON DAP using mocked configuration'
-        def jsonCredentialDAP = new JsonCredentialDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonCredentialDAP = new RestCredentialDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             json() >> Stub(Json) {
                 fromJson(validJsonResponseBody) >> new JsonSlurper().parseText(validJsonResponseBody)
             }
@@ -158,7 +158,7 @@ class JsonCredentialDataAccessProviderSpecification extends Specification {
         def mockedJson = Mock(Json)
 
         and: 'a JSON DAP using mocked configuration'
-        def jsonCredentialDAP = new JsonCredentialDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonCredentialDAP = new RestCredentialDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getCredentialAccessConfiguration() >> credentialAccessConfigurationMock
             webServiceClient() >> mockedClient
             json() >> mockedJson
@@ -233,7 +233,7 @@ class JsonCredentialDataAccessProviderSpecification extends Specification {
         }
 
         and: 'a JSON DAP using mocked configuration'
-        def jsonCredentialDAP = new JsonCredentialDataAccessProvider(Mock(JsonDataAccessProviderConfiguration) {
+        def jsonCredentialDAP = new RestCredentialDataAccessProvider(Mock(RestDataAccessProviderConfiguration) {
             getCredentialAccessConfiguration() >> credentialAccessConfigurationMock
             webServiceClient() >> mockedClient
             json() >> mockedJson

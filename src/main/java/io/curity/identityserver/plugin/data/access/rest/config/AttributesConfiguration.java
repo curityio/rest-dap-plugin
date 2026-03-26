@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json.config;
+package io.curity.identityserver.plugin.data.access.rest.config;
 
 import se.curity.identityserver.sdk.config.Configuration;
 import se.curity.identityserver.sdk.config.OneOf;

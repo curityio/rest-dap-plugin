@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json.config;
+package io.curity.identityserver.plugin.data.access.rest.config;
 
 import se.curity.identityserver.sdk.config.Configuration;
 import se.curity.identityserver.sdk.config.annotation.Name;
 import se.curity.identityserver.sdk.service.Json;
 import se.curity.identityserver.sdk.service.WebServiceClient;
 
-public interface JsonDataAccessProviderConfiguration extends Configuration
+public interface RestDataAccessProviderConfiguration extends Configuration
 {
 
     WebServiceClient webServiceClient();

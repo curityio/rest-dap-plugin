@@ -14,24 +14,26 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json.parameter;
+package io.curity.identityserver.plugin.data.access.rest.parameter;
 
-
+import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.attribute.SubjectAttributes;
 
-public class StaticMapping extends ParameterMapping
+public abstract class ParameterMapping
 {
-    private String _value;
+    private String _name;
 
-    public StaticMapping(String name, String value)
+    public ParameterMapping(String name)
     {
-        super(name);
-        _value = value;
+        _name = name;
     }
 
-    @Override
-    public String getMappedValue(SubjectAttributes attributes)
+    public String getParameterName()
     {
-        return _value;
+        return _name;
     }
+
+    @Nullable
+    abstract public String getMappedValue(SubjectAttributes attributes);
+
 }

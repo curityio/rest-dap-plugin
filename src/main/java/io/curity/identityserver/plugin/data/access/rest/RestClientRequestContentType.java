@@ -14,16 +14,16 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json;
+package io.curity.identityserver.plugin.data.access.rest;
 
-public enum JsonClientRequestContentType
+public enum RestClientRequestContentType
 {
     APPLICATION_JSON("application/json"),
     APPLICATION_WWW_FORM_URLENCODED("application/x-www-form-urlencoded");
 
     private final String _contentType;
 
-    JsonClientRequestContentType(String contentType)
+    RestClientRequestContentType(String contentType)
     {
         _contentType = contentType;
     }

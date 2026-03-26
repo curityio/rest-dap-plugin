@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.curity.identityserver.plugin.data.access.json;
+package io.curity.identityserver.plugin.data.access.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +116,7 @@ final class WebUtils
                 .map(Optional::get)
                 .map(String::trim)
                 .collect(Collectors.toSet())
-                .contains(JsonClientRequestContentType.APPLICATION_JSON.toString());
+                .contains(RestClientRequestContentType.APPLICATION_JSON.toString());
 
     }
 }
