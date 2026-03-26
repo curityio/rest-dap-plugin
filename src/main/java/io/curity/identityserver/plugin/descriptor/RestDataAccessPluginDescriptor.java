@@ -17,7 +17,7 @@
 package io.curity.identityserver.plugin.descriptor;
 
 import io.curity.identityserver.plugin.data.access.rest.RestAttributeDataAccessProvider;
-import io.curity.identityserver.plugin.data.access.rest.RestCredentialDataAccessProviderFactory;
+import io.curity.identityserver.plugin.data.access.rest.RestCredentialDataAccessProvider;
 import io.curity.identityserver.plugin.data.access.rest.config.RestDataAccessProviderConfiguration;
 import se.curity.identityserver.sdk.Nullable;
 import se.curity.identityserver.sdk.config.Configuration;
@@ -42,7 +42,7 @@ public class RestDataAccessPluginDescriptor implements DataAccessProviderPluginD
 
     @Override
     public @Nullable Class<? extends CredentialDataAccessProviderFactory> getCredentialDataAccessProviderFactory() {
-        return RestCredentialDataAccessProviderFactory.class;
+        return RestCredentialDataAccessProvider.class;
     }
 
     @Nullable

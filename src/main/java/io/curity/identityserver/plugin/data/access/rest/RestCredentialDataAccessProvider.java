@@ -29,6 +29,7 @@ import se.curity.identityserver.sdk.attribute.Attributes;
 import se.curity.identityserver.sdk.attribute.AuthenticationAttributes;
 import se.curity.identityserver.sdk.attribute.ContextAttributes;
 import se.curity.identityserver.sdk.attribute.SubjectAttributes;
+import se.curity.identityserver.sdk.datasource.CredentialDataAccessProviderFactory;
 import se.curity.identityserver.sdk.datasource.CredentialVerifyingDataAccessProvider;
 import se.curity.identityserver.sdk.http.HttpRequest;
 import se.curity.identityserver.sdk.http.HttpResponse;
@@ -44,7 +45,7 @@ import static io.curity.identityserver.plugin.data.access.rest.WebUtils.urlEncod
 import static io.curity.identityserver.plugin.data.access.rest.WebUtils.urlEncodedFormData;
 import static se.curity.identityserver.sdk.alarm.AlarmType.EXTERNAL_SERVICE_FAILED_AUTHENTICATION;
 
-public class RestCredentialDataAccessProvider implements CredentialVerifyingDataAccessProvider, ThreadSafe
+public class RestCredentialDataAccessProvider implements CredentialVerifyingDataAccessProvider, CredentialDataAccessProviderFactory, ThreadSafe
 {
     private static final String SUBJECT_PLACEHOLDER = ":subject";
     private static final String PASSWORD_PLACEHOLDER = ":password";
@@ -132,7 +133,6 @@ public class RestCredentialDataAccessProvider implements CredentialVerifyingData
     }
 
     @VisibleForTesting
-    @Nullable
     AuthenticationAttributes getAuthenticationAttributesFrom(HttpResponse jsonResponse, String userName)
     {
         VerifyResult result = getVerifyResult(jsonResponse, userName);
@@ -147,7 +147,6 @@ public class RestCredentialDataAccessProvider implements CredentialVerifyingData
         }
     }
 
-    @Nullable
     private VerifyResult getVerifyResult(HttpResponse jsonResponse, String userName)
     {
         String responseBody = jsonResponse.body(HttpResponse.asString());
